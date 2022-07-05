@@ -10,5 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "launchdarkly-node-client-sdk": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.1"
   }
 }

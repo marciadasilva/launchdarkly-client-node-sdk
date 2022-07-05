@@ -1,37 +1,37 @@
-const LaunchDarkly = require("launchdarkly-node-client-sdk");
+const {initialize, LDClient} = require("launchdarkly-node-client-sdk");
 
 const key = process.env.LAUNCH_DARKLY_API_KEY;
 
-const featureFlagInitialize = () => {
+type ClientType = typeof LDClient
+
+const featureFlagInitialize = (): ClientType => {
   const user = {
     key: "marcia",
     name: "marcia da silva",
     email: "marcia.dasilva@zensurance.com",
   };
-  return LaunchDarkly.initialize(key, user);
+  return initialize(key, user);
 };
 
-const getFeatureFlagByKey = (client, ffkey, fallback = false) => {
-  let result = false;
-  client
+const getFeatureFlagByKey = async (client: ClientType, ffkey:string, fallback = false) => {
+  return await client
     .waitForInitialization()
     .then(() => {
-      result = client.variation(ffkey, fallback);
+      return client.variation(ffkey, fallback);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.log(error);
     })
-  client.close();
-  return result;
+  // client.close();
 };
 
-const getFeatureFlagByKeyDetailed = async (client, ffkey, fallback = false) => {
-  const result = await client
+const getFeatureFlagByKeyDetailed = async (client: ClientType, ffkey: string, fallback = false) => {
+   return await client
     .waitForInitialization()
     .then(() => {
       return client.variationDetail(ffkey, fallback);
     })
-    .catch((error) => {
+    .catch((error:any) => {
       console.log(error);
     })
   // client.close();
@@ -42,10 +42,9 @@ const getFeatureFlagByKeyDetailed = async (client, ffkey, fallback = false) => {
   //    reason: object describing the main factor that influenced the flag evaluation value
   // }
   // good for debugging and analytics
-  return result;
 };
 
-const getAllFlags = (client) => {
+const getAllFlags = (client:ClientType) => {
   return client.allFlags();
 }
 
@@ -57,8 +56,8 @@ module.exports = {getFeatureFlagByKeyDetailed, getAllFlags, featureFlagInitializ
 const featureFlagClient = featureFlagInitialize();
 
 (async function() {
-  const myFlag = getFeatureFlagByKey(featureFlagClient, "choice-model");
-  const myFlagDetailed = await getFeatureFlagByKeyDetailed(featureFlagClient, "choice-model");
+  const myFlag = getFeatureFlagByKey(featureFlagClient, "show-hello-world");
+  const myFlagDetailed = await getFeatureFlagByKeyDetailed(featureFlagClient, "show-hello-world");
   console.log({myFlag, myFlagDetailed});
 })()
 
